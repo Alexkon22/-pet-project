@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: todo
+      POSTGRES_PASSWORD: todo
+      POSTGRES_DB: todo
+      TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todo -d todo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://todo:todo@db:5432/todo
+      # Без TZ контейнер живёт по UTC, и «сегодня»/«просрочено» считаются неверно.
+      TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      # Код с диска, без пересборки образа после правок шаблонов и CSS.
+      - ./app.py:/app/app.py
+      - ./templates:/app/templates
+      - ./static:/app/static
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
