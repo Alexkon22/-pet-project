@@ -1,0 +1,328 @@
+{%- from "_fields.html" import task_fields with context -%}
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Список задач</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=6">
+</head>
+<body>
+<svg class="sprite" aria-hidden="true">
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-sunrise" viewBox="0 0 24 24"><path d="M17 18a5 5 0 0 0-10 0M12 2v6M4.9 10.9l1.4 1.4M2 18h2M20 18h2M17.7 12.3l1.4-1.4M22 22H2M8 6l4-4 4 4"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.2-.9L12 3z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3zM12 9v5M12 17.5h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 12h5l2 3h4l2-3h5M4.5 5h15l1.5 7v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6l1.5-7z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7M10.5 20a2 2 0 0 0 3 0"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6.5 9H3v6h3.5L11 19V5zM15.5 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></symbol>
+</svg>
+
+<aside class="float-cal" id="calendar-widget" data-storage="calendarPos">
+    <div class="drag-bar" data-drag>
+        <svg class="ico"><use href="#i-drag"/></svg>
+        <strong>Часы и календарь</strong>
+    </div>
+    <div class="float-clock">
+        <div class="digital-time" id="digital-time">00:00:00</div>
+        <div class="digital-date" id="digital-date"></div>
+    </div>
+    <div id="calendar"></div>
+    <button type="button" class="btn btn-ghost btn-block" id="show-all">Сбросить дату</button>
+</aside>
+<div class="day-tip" id="day-tip" role="tooltip"></div>
+
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark"><svg class="ico"><use href="#i-check"/></svg></span>
+            <span class="brand-text">Обзор задач</span>
+        </div>
+
+        <nav class="nav" aria-label="Списки">
+            <button type="button" class="nav-item active" data-view="myday">
+                <svg class="ico"><use href="#i-sun"/></svg>
+                <span class="label">Мой день</span>
+                <span class="nav-count" data-count="myday">0</span>
+            </button>
+            <button type="button" class="nav-item" data-view="important">
+                <svg class="ico"><use href="#i-star"/></svg>
+                <span class="label">Важно</span>
+                <span class="nav-count" data-count="important">0</span>
+            </button>
+            <button type="button" class="nav-item" data-view="planned">
+                <svg class="ico"><use href="#i-calendar"/></svg>
+                <span class="label">Запланировано</span>
+                <span class="nav-count" data-count="planned">0</span>
+            </button>
+            <button type="button" class="nav-item" data-view="tasks">
+                <svg class="ico"><use href="#i-list"/></svg>
+                <span class="label">Все задачи</span>
+                <span class="nav-count" data-count="tasks">0</span>
+            </button>
+            <button type="button" class="nav-item" data-view="done">
+                <svg class="ico"><use href="#i-check-circle"/></svg>
+                <span class="label">Выполнено</span>
+                <span class="nav-count" data-count="done">0</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-foot">
+            <button type="button" class="nav-item" id="theme-toggle" aria-pressed="false">
+                <svg class="ico" id="theme-icon"><use href="#i-moon"/></svg>
+                <span class="label" id="theme-label">Тёмная тема</span>
+            </button>
+            <label class="nav-item as-label">
+                <svg class="ico"><use href="#i-volume"/></svg>
+                <span class="label">Звук напоминаний</span>
+                <input type="checkbox" id="sound-enabled" checked>
+            </label>
+            <button type="button" class="nav-item" id="notify-enable">
+                <svg class="ico"><use href="#i-bell"/></svg>
+                <span class="label" id="notify-enable-label">Разрешить уведомления</span>
+            </button>
+            <button type="button" class="nav-item" id="notify-test">
+                <svg class="ico"><use href="#i-volume"/></svg>
+                <span class="label">Проверить звук</span>
+            </button>
+            <aside class="notify-note" id="notify-status" hidden>
+                <span class="notify-note-tape" aria-hidden="true"></span>
+                <p class="notify-note-text" id="notify-status-text"></p>
+            </aside>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="page-head">
+            <div class="page-head-text">
+                <h1 class="hero-title" id="hero-title">Мой день</h1>
+                <p class="hero-eyebrow" id="hero-date"></p>
+                <p class="hero-sub" id="hero-sub"></p>
+            </div>
+            <label class="search">
+                <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+                <input type="search" id="task-search" placeholder="Поиск, в том числе выполненные" autocomplete="off">
+            </label>
+        </header>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-icon stat-icon-lavender">{{ stats.open }}</div>
+                <div>
+                    <p class="stat-label">К выполнению</p>
+                    <p class="stat-value">{{ stats.open }}</p>
+                    <p class="stat-sub">{{ stats.critical_open }} с высоким приоритетом</p>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon stat-icon-amber">{{ stats.overdue }}</div>
+                <div>
+                    <p class="stat-label">Просрочено</p>
+                    <p class="stat-value">{{ stats.overdue }}</p>
+                    <p class="stat-sub">{{ stats.today_open }} на сегодня</p>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon stat-icon-sage">{{ stats.done }}</div>
+                <div>
+                    <p class="stat-label">Завершено</p>
+                    <p class="stat-value">{{ stats.done }}</p>
+                    <p class="stat-sub">{{ stats.completion_rate }}% от всех задач</p>
+                </div>
+            </article>
+            <article class="stat-card stat-card-ring">
+                <div class="hero-ring" style="--percent: {{ stats.today_percent }}">
+                    <svg viewBox="0 0 120 120" class="ring">
+                        <circle class="ring-bg" cx="60" cy="60" r="52"/>
+                        <circle class="ring-fill" cx="60" cy="60" r="52"/>
+                    </svg>
+                    <div class="ring-label">
+                        <strong>{{ stats.today_percent }}%</strong>
+                        <span>сегодня</span>
+                    </div>
+                </div>
+                <p class="stat-sub ring-caption">{{ stats.today_done }} из {{ stats.today_total }} за день</p>
+            </article>
+        </section>
+
+        {% if stats.open %}
+        <section class="prio-card">
+            <p class="stat-label">По приоритету</p>
+            {% set prio_total = stats.open or 1 %}
+            <div class="prio-bars">
+                <div class="prio-bar-row">
+                    <span>Очень важная</span>
+                    <div class="prio-bar-track"><div class="prio-bar-fill prio-fill-critical" style="width: {{ (stats.by_priority.critical / prio_total * 100)|round }}%"></div></div>
+                    <span>{{ stats.by_priority.critical }}</span>
+                </div>
+                <div class="prio-bar-row">
+                    <span>Важная</span>
+                    <div class="prio-bar-track"><div class="prio-bar-fill prio-fill-important" style="width: {{ (stats.by_priority.important / prio_total * 100)|round }}%"></div></div>
+                    <span>{{ stats.by_priority.important }}</span>
+                </div>
+                <div class="prio-bar-row">
+                    <span>Средняя</span>
+                    <div class="prio-bar-track"><div class="prio-bar-fill prio-fill-medium" style="width: {{ (stats.by_priority.medium / prio_total * 100)|round }}%"></div></div>
+                    <span>{{ stats.by_priority.medium }}</span>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if stats.next_task %}
+        <section class="next-card">
+            <div class="next-mark"><svg class="ico"><use href="#i-clock"/></svg></div>
+            <div>
+                <p class="next-eyebrow">Ближайшая задача</p>
+                <p class="next-title">{{ stats.next_task.title }}</p>
+                <p class="next-when">{{ stats.next_task.when_label }} · {{ stats.next_task.priority_label }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="tile" id="add-tile">
+            <button type="button" class="tile-toggle" id="add-toggle" aria-expanded="false">
+                <span class="tile-plus"><svg class="ico"><use href="#i-plus"/></svg></span>
+                <span>Новая задача</span>
+                <span class="chevron">▾</span>
+            </button>
+            <div class="tile-body">
+                <form class="task-form" action="/add" method="post">
+                    <div class="add-row">
+                        <span class="add-circle" aria-hidden="true"></span>
+                        <input type="text" name="task" placeholder="Что нужно сделать?" required autocomplete="off">
+                    </div>
+                    {{ task_fields('add') }}
+                    <button class="btn btn-primary" type="submit">Добавить задачу</button>
+                </form>
+            </div>
+        </section>
+
+        <div class="list-panel">
+        <div class="list-head">
+            <h2 id="list-title">Мой день</h2>
+            <span class="list-meta" id="list-meta"></span>
+        </div>
+
+        <div id="groups">
+            {% for group in groups %}
+            <section class="group" data-group="{{ group.key }}">
+                <div class="group-head">
+                    <svg class="ico"><use href="#i-{{ group.icon }}"/></svg>
+                    <span class="group-label">{{ group.label }}</span>
+                    <span class="group-count">{{ group.tasks|length }}</span>
+                    {% if group.key == 'done' %}
+                    <form action="/clear-done" method="post" class="group-action">
+                        <button type="submit" class="btn btn-ghost btn-sm">Очистить</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <ul class="task-list">
+                    {% for task in group.tasks %}
+                    <li class="task prio-{{ task.priority }}{% if task.overdue %} overdue{% endif %}{% if task.done %} done{% endif %}"
+                        style="--i: {{ loop.index0 }}"
+                        data-id="{{ task.id }}"
+                        data-date="{{ task.due_date }}"
+                        data-priority="{{ task.priority }}"
+                        data-done="{{ '1' if task.done else '0' }}"
+                        data-title="{{ task.title }}"
+                        data-remind-at="{{ task.remind_at_iso or '' }}">
+                        <div class="task-row">
+                            <form action="/toggle/{{ task.id }}" method="post" class="task-toggle-form">
+                                <button type="submit" class="task-check"
+                                        aria-label="{{ 'Вернуть в работу' if task.done else 'Отметить выполненной' }}">
+                                    <svg class="ico"><use href="#i-check"/></svg>
+                                </button>
+                            </form>
+                            <div class="task-main">
+                                <div class="task-title">{{ task.title }}</div>
+                                <div class="task-badges">
+                                    <span class="badge badge-when">{{ task.when_label }}</span>
+                                    <span class="badge badge-prio">
+                                        <span class="prio-dot"></span>{{ task.priority_label }}
+                                    </span>
+                                    {% if task.remind %}
+                                    <span class="badge badge-remind">
+                                        <svg class="ico"><use href="#i-bell"/></svg>{{ task.remind_label }}
+                                    </span>
+                                    {% endif %}
+                                    {% if task.overdue %}
+                                    <span class="badge badge-alert">просрочено</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button type="button" class="icon-btn" data-edit
+                                        title="Редактировать" aria-label="Редактировать">
+                                    <svg class="ico"><use href="#i-pencil"/></svg>
+                                </button>
+                                <form action="/delete/{{ task.id }}" method="post"
+                                      onsubmit="return confirm('Удалить задачу?')">
+                                    <button type="submit" class="icon-btn danger"
+                                            title="Удалить" aria-label="Удалить">
+                                        <svg class="ico"><use href="#i-trash"/></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <form class="task-form task-edit" action="/edit/{{ task.id }}" method="post" hidden>
+                            <div class="add-row">
+                                <input type="text" name="task" value="{{ task.title }}" required autocomplete="off">
+                            </div>
+                            {{ task_fields('edit-' ~ task.id, task) }}
+                            <div class="edit-actions">
+                                <button class="btn btn-primary btn-sm" type="submit">Сохранить</button>
+                                <button class="btn btn-ghost btn-sm" type="button" data-cancel-edit>Отмена</button>
+                            </div>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endfor %}
+        </div>
+
+        <div class="empty" id="empty-msg" hidden>
+            <div class="empty-art">
+                <svg viewBox="0 0 120 90" class="empty-svg">
+                    <rect x="18" y="14" width="84" height="62" rx="10" class="es-card"/>
+                    <path d="M32 34h40M32 46h56M32 58h30" class="es-line"/>
+                    <circle cx="88" cy="60" r="16" class="es-badge"/>
+                    <path d="m81 60 5 5 9-10" class="es-check"/>
+                </svg>
+            </div>
+            <p class="empty-title" id="empty-title">Пока пусто</p>
+            <p class="empty-sub" id="empty-sub">Добавь первую задачу — кнопка «Новая задача» выше.</p>
+        </div>
+        </div>
+    </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+    <span class="toast-mark"><svg class="ico"><use href="#i-bell"/></svg></span>
+    <div>
+        <strong id="toast-title">Напоминание</strong>
+        <span id="toast-body"></span>
+    </div>
+</div>
+
+<script>
+    window.APP_DATA = { taskCounts: {{ task_counts|tojson }} };
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}?v=5"></script>
+</body>
+</html>
