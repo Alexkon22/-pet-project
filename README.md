@@ -1,5 +1,7 @@
 # Список задач (DevOps Pet)
 
+[![CI](https://github.com/Alexkon22/-pet-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexkon22/-pet-project/actions/workflows/ci.yml)
+
 Список задач на Flask + PostgreSQL: даты и время, приоритеты, группировка по срокам,
 напоминания со звуком, светлая и тёмная темы.
 Данные хранятся в БД и переживают перезапуск контейнеров (Docker volume).
@@ -64,6 +66,22 @@ TZ=Europe/Berlin docker compose up -d
 - UI: http://localhost:5000
 - Health: http://localhost:5000/health
 
+## CI
+
+На каждый push и pull request в `main` GitHub Actions запускает:
+
+- `ruff check` — линтер
+- `pytest` — тесты `/health` и создание задачи (Postgres в CI)
+- `docker build` — сборка образа
+
+Локально:
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pytest
+ruff check .
+```
+
 ## Локально без Docker (опционально)
 
 Нужен запущенный Postgres и переменная `DATABASE_URL`.
@@ -77,6 +95,5 @@ python app.py
 ## Что дальше
 
 - gunicorn вместо dev-сервера Flask
-- GitHub Actions (CI: lint/test/build)
 - Secrets вместо пароля в compose
 - Kubernetes (позже)
