@@ -1,6 +1,7 @@
 import os
 import time
-from datetime import date, datetime, timedelta, time as dt_time
+from datetime import date, datetime, timedelta
+from datetime import time as dt_time
 
 import psycopg2
 from flask import Flask, jsonify, redirect, render_template, request
