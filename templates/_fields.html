@@ -1,0 +1,41 @@
+{# Общие поля формы: используются и при создании, и при редактировании задачи. #}
+{% macro task_fields(prefix, task=None) %}
+<div class="meta-row">
+    <label class="field">
+        <span class="field-label">Дата</span>
+        <input type="date" name="due_date" id="{{ prefix }}-due_date"
+               value="{{ task.due_date if task else '' }}">
+    </label>
+    <label class="field">
+        <span class="field-label">Время</span>
+        <input type="time" name="due_time" id="{{ prefix }}-due_time"
+               value="{{ task.due_time if task else '' }}">
+    </label>
+    <label class="field">
+        <span class="field-label">Напомнить</span>
+        <select name="remind_minutes" data-remind-select
+                {% if not task or not task.remind %}disabled{% endif %}>
+            {% for minutes, label in remind_options %}
+            <option value="{{ minutes }}"
+                {% if task and task.remind and task.remind_minutes == minutes %}selected
+                {% elif not task and minutes == 15 %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label class="switch">
+        <input type="checkbox" name="remind" value="1" data-remind-toggle
+               {% if task and task.remind %}checked{% endif %}>
+        <span class="switch-track"><span class="switch-knob"></span></span>
+        <span>Напоминание</span>
+    </label>
+</div>
+<div class="prio-group" role="radiogroup" aria-label="Важность">
+    {% for value, label in priority_labels.items() %}
+    <label class="prio prio-{{ value }}">
+        <input type="radio" name="priority" value="{{ value }}"
+               {% if (task and task.priority == value) or (not task and value == 'medium') %}checked{% endif %}>
+        <span class="prio-dot"></span>{{ label }}
+    </label>
+    {% endfor %}
+</div>
+{% endmacro %}
