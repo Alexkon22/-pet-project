@@ -92,8 +92,4 @@ set DATABASE_URL=postgresql://todo:todo@localhost:5432/todo
 python app.py
 ```
 
-## Что дальше
 
-- gunicorn вместо dev-сервера Flask
-- Secrets вместо пароля в compose
-- Kubernetes (позже)
