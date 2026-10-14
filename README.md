@@ -1,28 +1,58 @@
+<div align="center">
+
 # Список задач (DevOps Pet)
 
-[![CI](https://github.com/Alexkon22/-pet-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexkon22/-pet-project/actions/workflows/ci.yml)
+Список задач на Flask + PostgreSQL: даты и время, приоритеты, группировка по срокам, напоминания со звуком, светлая и тёмная темы.
 
-Список задач на Flask + PostgreSQL: даты и время, приоритеты, группировка по срокам,
-напоминания со звуком, светлая и тёмная темы.
 Данные хранятся в БД и переживают перезапуск контейнеров (Docker volume).
 
-## Стек
+[![CI](https://github.com/Alexkon22/-pet-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexkon22/-pet-project/actions/workflows/ci.yml) ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-3.0.3-000000?logo=flask&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 
-- Flask (веб-приложение)
-- PostgreSQL 16
-- Docker + Docker Compose
+</div>
 
-## Структура
+<!--
+  SCREENSHOT PLACEHOLDER
+  В репозитории нет изображений интерфейса — не подставляйте выдуманный скриншот.
+  Когда файл появится, вставьте его сюда, например:
+  ![Интерфейс списка задач](docs/screenshot.png)
+-->
 
-```
-app.py                  Flask: роуты, работа с БД, группировка задач
-templates/index.html    Разметка страницы
-templates/_fields.html  Общие поля формы (создание и редактирование)
-static/css/style.css    Дизайн-токены, светлая и тёмная темы
-static/js/app.js        Фильтры, календарь, темы, напоминания
-```
+## Содержание
 
-## Запуск
+- [Стек](#stack)
+- [Возможности](#features)
+- [Быстрый старт](#quick-start)
+- [Часовой пояс](#timezone)
+- [Структура](#structure)
+- [Проверка](#health)
+- [CI](#ci)
+- [Локально без Docker](#local)
+
+<h2 id="stack">🧱 Стек</h2>
+
+| Технология | Версия | Роль |
+| --- | --- | --- |
+| Python | 3.11 | Язык (`python:3.11-slim`, CI) |
+| Flask | 3.0.3 | Веб-приложение |
+| psycopg2-binary | 2.9.9 | Драйвер PostgreSQL |
+| PostgreSQL | 16 | База данных (`postgres:16-alpine`) |
+| Docker Compose | — | Сборка и запуск контейнеров |
+| pytest | 8.3.3 | Тесты |
+| Ruff | 0.6.9 | Линтер |
+
+<h2 id="features">✨ Возможности</h2>
+
+| Возможность | Описание |
+| --- | --- |
+| Задачи | Отметить выполненной, вернуть в работу, отредактировать, удалить |
+| Приоритеты | Средняя, важная и очень важная — с цветовым кодированием |
+| Группировка | Просрочено, сегодня, завтра, на этой неделе, позже, без срока |
+| Разделы | Мой день, важно, запланировано, все задачи, выполнено |
+| Напоминания | Звук и системные уведомления браузера |
+| Виджет | Плавающие часы и календарь, позиция запоминается |
+| Тема | Переключатель светлой и тёмной темы |
+
+<h2 id="quick-start">🚀 Быстрый старт</h2>
 
 ```bash
 docker compose up --build -d
@@ -42,31 +72,43 @@ docker compose down
 docker compose down -v
 ```
 
-## Часовой пояс
+<h2 id="timezone">🕐 Часовой пояс</h2>
 
-Контейнеры по умолчанию живут в UTC, из-за чего «сегодня» и «просрочено»
-считаются неверно. Пояс задаётся переменной `TZ` (по умолчанию `Europe/Moscow`):
+Контейнеры по умолчанию живут в UTC, из-за чего «сегодня» и «просрочено» считаются неверно. Пояс задаётся переменной `TZ` (по умолчанию `Europe/Moscow`):
 
 ```bash
 TZ=Europe/Berlin docker compose up -d
 ```
 
-## Возможности
+<h2 id="structure">📁 Структура</h2>
 
-- Отметить задачу выполненной, вернуть в работу, отредактировать, удалить
-- Приоритеты (средняя / важная / очень важная) с цветовым кодированием
-- Автоматическая группировка: просрочено, сегодня, завтра, на этой неделе, позже, без срока
-- Разделы: мой день, важно, запланировано, все задачи, выполнено
-- Напоминания со звуком и системными уведомлениями браузера
-- Плавающий виджет часов и календаря (позиция запоминается)
-- Переключатель светлой и тёмной темы
+```text
+.
+├── app.py                      Flask: роуты, работа с БД, группировка задач
+├── templates/
+│   ├── index.html              Разметка страницы
+│   └── _fields.html            Общие поля формы (создание и редактирование)
+├── static/
+│   ├── css/style.css           Дизайн-токены, светлая и тёмная темы
+│   └── js/app.js               Фильтры, календарь, темы, напоминания
+├── tests/
+│   └── test_app.py             Тесты /health и создания задачи
+├── .github/workflows/ci.yml    GitHub Actions: ruff, pytest, docker build
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt            Flask, psycopg2-binary
+├── requirements-dev.txt        pytest, ruff
+├── pytest.ini
+├── ruff.toml
+└── .env.example
+```
 
-## Проверка
+<h2 id="health">✅ Проверка</h2>
 
 - UI: http://localhost:5000
 - Health: http://localhost:5000/health
 
-## CI
+<h2 id="ci">🔁 CI</h2>
 
 На каждый push и pull request в `main` GitHub Actions запускает:
 
@@ -82,7 +124,10 @@ pytest
 ruff check .
 ```
 
-## Локально без Docker (опционально)
+<h2 id="local">💻 Локально без Docker</h2>
+
+<details>
+<summary>Показать команды</summary>
 
 Нужен запущенный Postgres и переменная `DATABASE_URL`.
 
@@ -92,4 +137,4 @@ set DATABASE_URL=postgresql://todo:todo@localhost:5432/todo
 python app.py
 ```
 
-
+</details>
